@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: configserver
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: file:///C:\Users\Nishith Soni\Desktop\Spring Boot\eCommerce-Microservice\configserver\src\main\resources\config
+
+server:
+  port: 8888

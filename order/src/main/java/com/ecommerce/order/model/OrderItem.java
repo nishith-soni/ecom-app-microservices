@@ -9,10 +9,12 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String productId;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+//    @ManyToOne
+//    @JoinColumn(name = "product_id", nullable = false)
+//    private Product product;
+
     private Integer quantity;
     private BigDecimal price;
 
@@ -23,16 +25,25 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(Long id, Product product, Integer quantity, BigDecimal price, Order order) {
+    public OrderItem(Long id, String productId, Integer quantity, BigDecimal price, Order order) {
         this.id = id;
-        this.product = product;
+        this.productId = productId;
         this.quantity = quantity;
         this.price = price;
         this.order = order;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+//    public void setProduct(Product product) {
+//        this.product = product;
+//    }
+
+
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public void setQuantity(Integer quantity) {
@@ -51,9 +62,9 @@ public class OrderItem {
         return id;
     }
 
-    public Product getProduct() {
-        return product;
-    }
+//    public Product getProduct() {
+//        return product;
+//    }
 
     public Integer getQuantity() {
         return quantity;

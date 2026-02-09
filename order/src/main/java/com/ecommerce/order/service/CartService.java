@@ -2,73 +2,63 @@ package com.ecommerce.order.service;
 
 import com.ecommerce.order.dto.CartItemRequest;
 import com.ecommerce.order.model.CartItem;
-import com.ecommerce.order.model.Product;
-import com.ecommerce.order.model.User;
 import com.ecommerce.order.repository.CartItemRepository;
-import com.ecommerce.order.repository.ProductRepository;
-import com.ecommerce.order.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class CartService {
 
-    private ProductRepository productRepository;
     private CartItemRepository cartItemRepository;
-    private UserRepository userRepository;
 
-    public CartService(ProductRepository productRepository, CartItemRepository cartItemRepository, UserRepository userRepository) {
-        this.productRepository = productRepository;
+    public CartService(CartItemRepository cartItemRepository) {
         this.cartItemRepository = cartItemRepository;
-        this.userRepository = userRepository;
     }
 
     public boolean addToCart(String userID, CartItemRequest cartItemRequest) {
-        Optional<Product> productOptional = productRepository.findById(cartItemRequest.getProductID());
-        if (productOptional.isEmpty()){
-            return false;
-        }
+//        Optional<Product> productOptional = productRepository.findById(cartItemRequest.getProductID());
+//        if (productOptional.isEmpty()){
+//            return false;
+//        }
+//
+//        Product product = productOptional.get();
+//        if (product.getStockQuantity() < cartItemRequest.getQuantity()){
+//            return false;
+//        }
+//
+//        Optional<User> userOptional = userRepository.findById(Long.valueOf(userID));
+//        if (userOptional.isEmpty()){
+//            return false;
+//        }
+//        User user = userOptional.get();
 
-        Product product = productOptional.get();
-        if (product.getStockQuantity() < cartItemRequest.getQuantity()){
-            return false;
-        }
-
-        Optional<User> userOptional = userRepository.findById(Long.valueOf(userID));
-        if (userOptional.isEmpty()){
-            return false;
-        }
-
-        User user = userOptional.get();
-        CartItem existingCartItem = cartItemRepository.findByUserAndProduct(user, product);
+        CartItem existingCartItem = cartItemRepository.findByUserIdAndProductId(userID, cartItemRequest.getProductID());
 
         if (existingCartItem != null){
             existingCartItem.setQuantity(cartItemRequest.getQuantity());
-            existingCartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(existingCartItem.getQuantity())));
+            existingCartItem.setPrice(BigDecimal.valueOf(1000.00));
             cartItemRepository.save(existingCartItem);
         }else {
             CartItem cartItem = new CartItem();
-            cartItem.setUser(user);
-            cartItem.setProduct(product);
+            cartItem.setUserId(userID);
+            cartItem.setProductId(cartItemRequest.getProductID());
             cartItem.setQuantity(cartItemRequest.getQuantity());
-            cartItem.setPrice(product.getPrice().multiply(BigDecimal.valueOf(cartItemRequest.getQuantity())));
+            cartItem.setPrice(BigDecimal.valueOf(1000.00));
             cartItemRepository.save(cartItem);
         }
 
         return true;
     }
 
-    public boolean deleteItemFromCart(String userId, Long productId) {
-        Optional<Product> productOptional = productRepository.findById(productId);
-        Optional<User> userOptional = userRepository.findById(Long.valueOf(userId));
+    public boolean deleteItemFromCart(String userId, String productId) {
+        CartItem cartItem = cartItemRepository.findByUserIdAndProductId(userId, productId);
 
-        if (productOptional.isPresent() && userOptional.isPresent()){
-            cartItemRepository.deleteByUserAndProduct(userOptional.get(), productOptional.get());
+        if (cartItem != null){
+            cartItemRepository.delete(cartItem);
             return true;
         }
 
@@ -76,13 +66,10 @@ public class CartService {
     }
 
     public List<CartItem> getCart(String userID) {
-        return userRepository.findById(Long.valueOf(userID))
-                .map(cartItemRepository::findByUser)
-                .orElseGet(List::of);
+        return cartItemRepository.findByUserId(userID);
     }
 
     public void clearCart(String userID) {
-        userRepository.findById(Long.valueOf(userID))
-                .ifPresent(user -> cartItemRepository.deleteByUser(user));
+        cartItemRepository.deleteByUserId(userID);
     }
 }

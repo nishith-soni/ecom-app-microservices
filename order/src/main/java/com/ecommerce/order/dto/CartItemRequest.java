@@ -1,17 +1,17 @@
 package com.ecommerce.order.dto;
 
 public class CartItemRequest {
-    private Long productID;
+    private String productID;
     private Integer quantity;
 
     public CartItemRequest() {
     }
 
-    public Long getProductID() {
+    public String getProductID() {
         return productID;
     }
 
-    public void setProductID(Long productID) {
+    public void setProductID(String productID) {
         this.productID = productID;
     }
 
